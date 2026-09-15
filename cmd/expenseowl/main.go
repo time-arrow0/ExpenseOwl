@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/tanq16/expenseowl/internal/api"
@@ -49,6 +50,7 @@ func runServer(port int) {
 
 	// Static File Handlers
 	http.HandleFunc("/functions.js", handler.ServeStaticFile)
+	http.HandleFunc("/i18n.js", handler.ServeStaticFile)
 	http.HandleFunc("/manifest.json", handler.ServeStaticFile)
 	http.HandleFunc("/sw.js", handler.ServeStaticFile)
 	http.HandleFunc("/pwa/", handler.ServeStaticFile)
@@ -87,9 +89,13 @@ func runServer(port int) {
 	http.HandleFunc("/import/csv", handler.ImportCSV)
 	http.HandleFunc("/import/csvold", handler.ImportOldCSV)
 
-	log.Println("Starting server on port", port, "...")
-	if err := http.ListenAndServe(fmt.Sprint(":", port), nil); err != nil {
+	listener, err := net.Listen("tcp", fmt.Sprint(":", port))
+	if err != nil {
 		log.Fatalf("Server failed to start: %v", err)
+	}
+	log.Println("Started server on port", port, "...")
+	if err := http.Serve(listener, nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
 	}
 }
 

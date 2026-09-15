@@ -15,7 +15,8 @@
             }
         })();
     </script>
-    <title>ExpenseOwl Table</title>
+    <script src="/i18n.js"></script>
+    <title data-i18n="table.title">ExpenseOwl Table</title>
 </head>
 <body>
     <div class="container">
@@ -24,13 +25,13 @@
                 <a href="/">
                     <img src="/pwa/icon-192.png" alt="ExpenseOwl Logo" height="85" style="vertical-align: middle; margin-right: 20px;">
                 </a>
-                <a href="/" class="view-button" data-tooltip="Dashboard">
+                <a href="/" class="view-button" data-tooltip="Dashboard" data-i18n-tooltip="nav.dashboard">
                     <i class="fa-solid fa-chart-pie"></i>
                 </a>
-                <a href="/table" class="view-button active" data-tooltip="Table View">
+                <a href="/table" class="view-button active" data-tooltip="Table View" data-i18n-tooltip="nav.table">
                     <i class="fa-solid fa-table"></i>
                 </a>
-                <a href="/settings" class="view-button" data-tooltip="Settings">
+                <a href="/settings" class="view-button" data-tooltip="Settings" data-i18n-tooltip="nav.settings">
                     <i class="fa-solid fa-gear"></i>
                 </a>
             </div>
@@ -44,40 +45,40 @@
         
         <div class="table-controls">
             <label for="showAllToggle">
-                <input type="checkbox" id="showAllToggle" class="styled-checkbox"> Show All Transactions
+                <input type="checkbox" id="showAllToggle" class="styled-checkbox"> <span data-i18n="table.showAll">Show All Transactions</span>
             </label>
         </div>
 
         <div class="form-container">
             <form id="expenseForm" class="expense-form">
                 <div class="form-group">
-                    <label for="name">Name</label>
+                    <label for="name" data-i18n="common.name">Name</label>
                     <input type="text" id="name" value="-" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="category">Category</label>
+                    <label for="category" data-i18n="common.category">Category</label>
                     <select id="category" required>
                         <option value="">categories</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="tags-input">Tags</label>
+                    <label for="tags-input" data-i18n="common.tags">Tags</label>
                     <div id="tags-input-container" class="tags-input-container">
                         <div id="selected-tags" class="selected-tags"></div>
-                        <input type="text" id="tags-input" placeholder="(optional)">
+                        <input type="text" id="tags-input" placeholder="(optional)" data-i18n-placeholder="common.optional">
                     </div>
                     <div id="tags-dropdown" class="tags-dropdown"></div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="amount">Amount</label>
+                    <label for="amount" data-i18n="common.amount">Amount</label>
                     <input type="number" id="amount" step="0.01" min="0.01" max="9000000000000000" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="date">Date</label>
+                    <label for="date" data-i18n="common.date">Date</label>
                     <input type="date" id="date" required>
                     <script>
                         const today = new Date();
@@ -90,11 +91,11 @@
                 </div>
                 
                 <div class="form-group form-group-checkbox">
-                    <label for="reportGain">Report Gain</label>
+                    <label for="reportGain" data-i18n="common.reportGain">Report Gain</label>
                     <input type="checkbox" id="reportGain" class="styled-checkbox">
                 </div>
 
-                <button type="submit" class="nav-button">Add Expense</button>
+                <button type="submit" class="nav-button" data-i18n="common.addExpense">Add Expense</button>
             </form>
             <div id="formMessage" class="form-message"></div>
         </div>
@@ -105,17 +106,19 @@
 
     <div id="deleteModal" class="modal">
         <div class="modal-content">
-            <h3>Delete Expense</h3>
-            <p>Are you sure you want to delete this expense? (cannot be undone)</p>
+            <h3 data-i18n="table.deleteTitle">Delete Expense</h3>
+            <p data-i18n="table.deleteConfirm">Are you sure you want to delete this expense? (cannot be undone)</p>
             <div class="modal-buttons">
-                <button class="modal-button" onclick="closeDeleteModal()">Cancel</button>
-                <button class="modal-button confirm" onclick="confirmDelete()">Delete</button>
+                <button class="modal-button" onclick="closeDeleteModal()" data-i18n="common.cancel">Cancel</button>
+                <button class="modal-button confirm" onclick="confirmDelete()" data-i18n="common.delete">Delete</button>
             </div>
         </div>
     </div>
 
     <script src="/functions.js"></script>
     <script>
+        applyTranslations();
+
         let currentCurrency = 'usd';
         let currentDate = new Date();
         let allExpenses = [];
@@ -127,8 +130,8 @@
         function createTable(expenses) {
             if (!expenses || expenses.length === 0) {
                 const message = document.getElementById('showAllToggle').checked ? 
-                                'No transactions found' : 
-                                'No expenses recorded for this month';
+                                t('table.noTransactions') : 
+                                t('table.noMonthExpenses');
                 return `<div class="no-data">${message}</div>`;
             }
             const hasTags = expenses.some(exp => exp.tags && exp.tags.length > 0);
@@ -136,11 +139,11 @@
                 <table class="expense-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Category</th>
-                            ${hasTags ? '<th class="tags-column">Tags</th>' : ''}
-                            <th>Amount</th>
-                            <th class="date-header">Date</th>
+                            <th>${t('common.name')}</th>
+                            <th>${t('common.category')}</th>
+                            ${hasTags ? `<th class="tags-column">${t('common.tags')}</th>` : ''}
+                            <th>${t('common.amount')}</th>
+                            <th class="date-header">${t('common.date')}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -224,7 +227,7 @@
             const form = document.getElementById('expenseForm');
             form.dataset.editId = id;
             const submitButton = form.querySelector('button[type="submit"]');
-            submitButton.textContent = 'Update Expense';
+            submitButton.textContent = t('table.updateExpense');
             
             form.scrollIntoView({ behavior: 'smooth' });
         }
@@ -266,7 +269,7 @@
                 
                 if(value && ![...allTags].map(t => t.toLowerCase()).includes(value)) {
                     const newItem = document.createElement('div');
-                    newItem.textContent = `+ Create "${input.value.trim()}"`;
+                    newItem.textContent = t('common.createTag', { tag: input.value.trim() });
                     newItem.className = 'new-tag';
                     newItem.onclick = () => addTag(input.value.trim());
                     dropdown.appendChild(newItem);
@@ -332,7 +335,7 @@
             } catch (error) {
                 console.error('Failed to initialize table:', error);
                 document.getElementById('tableContainer').innerHTML = 
-                    '<div class="no-data">Failed to load expenses</div>';
+                    `<div class="no-data">${t('table.loadFailed')}</div>`;
             }
         }
 
@@ -384,7 +387,7 @@
                 closeDeleteModal();
             } catch (error) {
                 console.error('Error deleting expense:', error);
-                alert('Failed to delete expense. Please try again.');
+                alert(t('table.deleteFailed'));
             }
         }
 
@@ -420,13 +423,13 @@
                 });
                 const messageDiv = document.getElementById('formMessage');
                 if (response.ok) {
-                    messageDiv.textContent = editId ? 'Expense updated successfully!' : 'Expense added successfully!';
+                    messageDiv.textContent = editId ? t('table.updated') : t('table.added');
                     messageDiv.className = 'form-message success';
                     form.reset();
                     document.getElementById('selected-tags').innerHTML = '';
                     selectedTags.clear();
                     delete form.dataset.editId;
-                    form.querySelector('button[type="submit"]').textContent = 'Add Expense';
+                    form.querySelector('button[type="submit"]').textContent = t('common.addExpense');
                     await initialize();
                     const today = new Date();
                     const year = today.getFullYear();
@@ -435,7 +438,7 @@
                     document.getElementById('date').value = `${year}-${month}-${day}`;
                 } else {
                     const error = await response.json();
-                    messageDiv.textContent = `Error: ${error.error || 'Failed to save expense'}`;
+                    messageDiv.textContent = t('common.error', { message: error.error || t('table.saveFailed') });
                     messageDiv.className = 'form-message error';
                 }
                 setTimeout(() => {
@@ -445,7 +448,7 @@
             } catch (error) {
                 console.error('Error saving expense:', error);
                 const messageDiv = document.getElementById('formMessage');
-                messageDiv.textContent = 'Error: Failed to save expense';
+                messageDiv.textContent = t('common.error', { message: t('table.saveFailed') });
                 messageDiv.className = 'form-message error';
             }
         });
